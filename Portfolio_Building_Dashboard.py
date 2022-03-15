@@ -58,12 +58,14 @@ ret_min = ret_min.rename("Retorno Mínimo")
 ret_max = ret_max.rename("Retorno Máximo")
 ret_acum=dados_f.iloc[-1]/dados_f.iloc[0]
 ret_acum=ret_acum.rename("Retorno líquido acumulado")
-retorno = pd.DataFrame()
-retorno = retorno.append(retornos_diarios_med)
-retorno = retorno.append(ret_min)
-retorno = retorno.append(ret_max)
-retorno = retorno.append(ret_acum)
-del retorno['^BVSP']
+retorno = pd.concat([retornos_diarios_med - 1, ret_min, ret_max, ret_acum], join="outer", axis=1)
+#etorno = pd.DataFrame()
+#retorno = retorno.append(retornos_diarios_med)
+#retorno = retorno.append(ret_min)
+#retorno = retorno.append(ret_max)
+#retorno = retorno.append(ret_acum)
+retorno.drop(['^BVSP'], inplace=True) 
+print(retorno)
 #-----------------------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------------------
@@ -77,12 +79,9 @@ desvio_padrao = desvio_padrao.rename('Desvio Padrão')
 def f_semivariancia (retornos_diarios, media):
     tamanho=len(retornos_diarios)
     somatorio = 0
-    #print('Média: ' + str(media))                                   // para debug
-    #print('Retorno no dia 1: ' + str(retornos_diarios.iloc[1]))     // para debug
     t = 0
     while t in range(tamanho):
         dif = (retornos_diarios.iloc[t] - media)
-        #print('Dif = ' + str(retornos_diarios.iloc[t] - media))    // para debug
         if dif < 0:
             somatorio += dif ** 2
         t += 1
