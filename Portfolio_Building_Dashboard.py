@@ -152,7 +152,6 @@ for a in acoes_f:
         t+=1
 drawdown = pd.DataFrame()
 drawdown = drawdown.reindex_like(retornos_diarios, method = 'backfill')
-#min(RBA['WEGE3.SA'].tail(tamanho_dias-200))
 for a in acoes_f:
     t=0
     while t in range(tamanho_dias):
