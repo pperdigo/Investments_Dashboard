@@ -59,13 +59,7 @@ ret_max = ret_max.rename("Retorno Máximo")
 ret_acum=dados_f.iloc[-1]/dados_f.iloc[0]
 ret_acum=ret_acum.rename("Retorno líquido acumulado")
 retorno = pd.concat([retornos_diarios_med - 1, ret_min, ret_max, ret_acum], join="outer", axis=1)
-#etorno = pd.DataFrame()
-#retorno = retorno.append(retornos_diarios_med)
-#retorno = retorno.append(ret_min)
-#retorno = retorno.append(ret_max)
-#retorno = retorno.append(ret_acum)
-retorno.drop(['^BVSP'], inplace=True) 
-print(retorno)
+retorno.drop(['^BVSP'], inplace=True)
 #-----------------------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------------------
@@ -165,54 +159,69 @@ drawdown_max.index = acoes_f
 drawdown_max = drawdown_max.rename('Drawdown')
 
 #Risk Dataframe
-risco = pd.DataFrame()
-risco = risco.append(desvio_padrao)
-risco = risco.append(semivariancia)
-risco = risco.append(drawdown_max)
-risco = risco.append(Downside_Risk)
-risco = risco.append(TEV)
-risco = risco.append(beta)
-del risco['^BVSP']
+
+risco = pd.concat([desvio_padrao, semivariancia, drawdown_max, Downside_Risk, TEV, beta], join='outer', axis=1)
+risco.drop(['^BVSP'], inplace = True)
+print("DataFrame de Risco \n")
+print (risco)
+
+
 
 #Normalized Risk Dataframe
-media_dp = risco.loc['Desvio Padrão'].mean()
-dp_dp = risco.loc['Desvio Padrão'].std()
-media_sv = risco.loc['Semivariância'].mean()
-dp_sv = risco.loc['Semivariância'].std()
-media_drd = risco.loc['Drawdown'].mean()
-dp_drd = risco.loc['Drawdown'].std()
-media_dsr = risco.loc['Downside Risk'].mean()
-dp_dsr = risco.loc['Downside Risk'].std()
-media_tev = risco.loc['Tracking Error Volatility'].mean()
-dp_tev = risco.loc['Tracking Error Volatility'].std()
-media_beta = risco.loc['Beta de mercado'].mean()
-dp_beta = risco.loc['Beta de mercado'].std()
+metrics = []
+for column in risco.columns:
+##    print(column)
+##    print(risco.loc[:,column])
+    media = risco.loc[:,column].mean()
+    dp = risco.loc[:,column].std()
+    metrics.append((risco.loc[:,column] - media)/dp)
+    risco_norm = pd.concat(metrics, join='outer', axis=1)
+print("Dataframe de Risco Normalizado \n")
+print(risco_norm)
+# media_dp = risco.loc['Desvio Padrão'].mean()
+# dp_dp = risco.loc['Desvio Padrão'].std()
+# media_sv = risco.loc['Semivariância'].mean()
+# dp_sv = risco.loc['Semivariância'].std()
+# media_drd = risco.loc['Drawdown'].mean()
+# dp_drd = risco.loc['Drawdown'].std()
+# media_dsr = risco.loc['Downside Risk'].mean()
+# dp_dsr = risco.loc['Downside Risk'].std()
+# media_tev = risco.loc['Tracking Error Volatility'].mean()
+# dp_tev = risco.loc['Tracking Error Volatility'].std()
+# media_beta = risco.loc['Beta de mercado'].mean()
+# dp_beta = risco.loc['Beta de mercado'].std()
 
-risco_norm = pd.DataFrame()
-dp_norm = (risco.loc['Desvio Padrão'] - media_dp) / dp_dp
-dp_norm = dp_norm.rename('Desvio Padrão Normalizado')
-risco_norm = risco_norm.append(dp_norm)
-sv_norm = (risco.loc['Semivariância'] - media_sv) / dp_sv
-sv_norm = sv_norm.rename('Semivariância Normalizada')
-risco_norm = risco_norm.append(sv_norm)
-drd_norm = (risco.loc['Drawdown'] - media_drd) / dp_drd
-drd_norm = drd_norm.rename('Drawdown Normalizado')
-risco_norm = risco_norm.append(drd_norm)
-dsr_norm = (risco.loc['Downside Risk'] - media_dsr) / dp_dsr
-dsr_norm = dsr_norm.rename('Downside Risk Normalizado')
-risco_norm = risco_norm.append(dsr_norm)
-tev_norm = (risco.loc['Tracking Error Volatility'] - media_tev) / dp_tev
-tev_norm = tev_norm.rename('Tracking Error Volatility Normalizado')
-risco_norm = risco_norm.append(tev_norm)
-beta_norm = (risco.loc['Beta de mercado'] - media_beta) / dp_beta
-beta_norm = beta_norm.rename('Beta de mercado Normalizado')
-risco_norm = risco_norm.append(beta_norm)
+# #risco_norm = pd.DataFrame()
+# dp_norm = (risco.loc['Desvio Padrão'] - media_dp) / dp_dp
+# dp_norm = dp_norm.rename('Desvio Padrão Normalizado')
+# #risco_norm = risco_norm.append(dp_norm)
+# sv_norm = (risco.loc['Semivariância'] - media_sv) / dp_sv
+# sv_norm = sv_norm.rename('Semivariância Normalizada')
+# #risco_norm = risco_norm.append(sv_norm)
+# drd_norm = (risco.loc['Drawdown'] - media_drd) / dp_drd
+# drd_norm = drd_norm.rename('Drawdown Normalizado')
+# #risco_norm = risco_norm.append(drd_norm)
+# dsr_norm = (risco.loc['Downside Risk'] - media_dsr) / dp_dsr
+# dsr_norm = dsr_norm.rename('Downside Risk Normalizado')
+# #risco_norm = risco_norm.append(dsr_norm)
+# tev_norm = (risco.loc['Tracking Error Volatility'] - media_tev) / dp_tev
+# tev_norm = tev_norm.rename('Tracking Error Volatility Normalizado')
+# #risco_norm = risco_norm.append(tev_norm)
+# beta_norm = (risco.loc['Beta de mercado'] - media_beta) / dp_beta
+# beta_norm = beta_norm.rename('Beta de mercado Normalizado')
+# #risco_norm = risco_norm.append(beta_norm)
+
+
+# risco_norm
+#retorno = pd.concat([retornos_diarios_med - 1, ret_min, ret_max, ret_acum], join="outer", axis=1)
+#retorno.drop(['^BVSP'], inplace=True)
+
 
 #Risk Score
 nota_risco = []
 t=0
 for a in (acoes_f_sem_bvsp):
-    nota_risco.append(risco_norm[a].mean())
+    nota_risco.append(risco_norm.loc[a].mean())
 nota_risco = pd.Series(nota_risco)
 nota_risco.index = acoes_f_sem_bvsp
 nota_risco = nota_risco.sort_values(ascending = False)
